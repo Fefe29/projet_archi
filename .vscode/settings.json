@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "samples.h": "c",
+        "audio_server.h": "c",
+        "sprite.h": "c",
+        "harvey_platform.h": "c",
+        "stdlib.h": "c"
+    }
+}
