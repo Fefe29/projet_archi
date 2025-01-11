@@ -3,6 +3,7 @@
 #include "samples.h" // Assurez-vous d'avoir la déclaration de sound_sample_t
 #include "audio_server.h"
 #include <stdio.h>
+#include <stdbool.h>
 
 
 
@@ -167,11 +168,6 @@ const char* couleurs[] = {
 };
 
 void traiter_evenement_clavier(uint32_t *couleur) {
-    // // Vérifiez si la FIFO contient un événement
-    // if (!(KEYBOARD->SR & KEYBOARD_SR_FIFO_NOT_EMPTY)) {
-    //     printf("Aucun événement clavier\n");
-    //     return;
-    // }
 
     // Lire les données du registre DATA
     uint32_t data = KEYBOARD->DATA;
@@ -216,6 +212,23 @@ void traiter_evenement_clavier(uint32_t *couleur) {
         }
         printf("Touche %c appuyée, couleur modifiée.\n", (char)key_code);
     }
+}
+
+bool traiter_evenement_espace() {
+    // Lire les données du registre DATA
+    uint32_t data = KEYBOARD->DATA;
+
+    // Extraire les informations de l'événement
+    int key_code = KEYBOARD_KEY_CODE(data); // Code du symbole
+    int pressed = data & KEYBOARD_DATA_PRESSED;
+
+    // Vérifiez si la touche espace est pressée
+    if (pressed && key_code == ' ') {
+        printf("Touche espace appuyée.\n");
+        return true;
+    }
+
+    return false;
 }
 
 /*Audio*/

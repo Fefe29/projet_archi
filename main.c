@@ -13,6 +13,7 @@
 #include "font.h"
 #include "sprite.h"
 #include "header.h"
+#include <stdbool.h>
 
 
 
@@ -30,12 +31,14 @@ uint32_t hue_to_color(unsigned int hue);
 #define GREEN 0xff00ff00
 #define TRANSPARENT 0x00000000
 
+
 extern const sprite_t soccer_ball;
 
-// Déclaration de la fonction pour lire les événements de la souris
+// Déclaration de la fonction pour lire les événements
 int lire_evenement_souris(mouse_data_t *event);
 void dessiner_cadeau_noel(uint32_t *framebuffer, uint32_t width, uint32_t height, int x, int y, uint32_t couleur);
 void traiter_evenement_clavier(uint32_t *couleur);
+bool traiter_evenement_espace();
 
 uint32_t framebuffer[SCREEN_WIDTH*SCREEN_HEIGHT];
 static SemaphoreHandle_t video_refresh_semaphore = NULL;
@@ -166,7 +169,7 @@ void affichage_dyn(void *arg)
 
 
 void init_video()
-{
+{	
 	video_refresh_semaphore = xSemaphoreCreateBinary();
 
 	VIDEO->WIDTH  = SCREEN_WIDTH;
@@ -229,7 +232,19 @@ void init_audio() {
     printf("Initialisation de l'audio effectuée\n");
 	printf("Veuillez patienter pendant le chargement de la musique et de l'affichage");
 }
+/*Thread qui joue petit Papa Noel
+Construite à partir de la partition disponible sur le site 
+https://www.partition-piano.org/noel/petit-papa-noel
+uniquement à partir de la main droite (portée du haut)
+sans tenir compte des silences, des bémols et des dièses...
+Attention aux oreilles. Appuyer sur la barre d'espace pour
+arrêter la musique (interruption)
+*/
 void thread_musique(void *arg) {
+	//Pour l'interruption clavier
+
+    KEYBOARD->CR |= KEYBOARD_CR_IE;
+
 	//Aide à la composition ;)
 	//Do: 0
 	//Ré: 1
@@ -241,6 +256,7 @@ void thread_musique(void *arg) {
 	//etc pour passer à l'octave du dessus.
 
     // Séquence de notes (indices des notes dans sound_samples)
+	// a noter que chaque ligne représente une mesure (4 temps en principe mais je n'ai pas matérialisé les silences)
     const int morceau[] = {
         0, 
 		3, 3, 3, 4,
@@ -250,16 +266,14 @@ void thread_musique(void *arg) {
 		3, 3, 3, 3, 2, 1,
 		0, 0, 0,
 		3, 3, 3, 4, 4, 
-		3, 1, 
+		3, 1,
 		3, 3, 3,  4,
 		3, 3, 4,
 		5, 5, 5, 6,
-
-
-
   
     };
-	// Do – Fa – Fa – Fa – Sol – Fa – Fa – Sol – La – La – La – Si – La – Sol – Fa – Fa – Fa – Fa – Mi – Ré – Do – Do – Do – Fa – Fa – Fa – Sol – Sol – Fa
+	
+	// Durée des notes en ms(une ligne egale une mesure de 4 tps en principe sauf s'il y a des silences non matérialisés)
     const int durees[] = {
         500,
 		500, 500, 500, 500,  // Durée des notes en ms
@@ -276,16 +290,19 @@ void thread_musique(void *arg) {
     const int nombre_notes = sizeof(morceau) / sizeof(morceau[0]);
 
     while (1) {
+		// Gestion des événements clavier
         for (int i = 0; i < nombre_notes; i++) {
             printf("Note %d : fréquence %.2f Hz\n", morceau[i], note_frequencies[morceau[i]]);
             int channel = Mix_PlayChannel(-1, &sound_samples[morceau[i]], MIX_MAX_VOLUME);
-
-            // Attendre la durée de la note
-            vTaskDelay(pdMS_TO_TICKS(durees[i]));
+			if (traiter_evenement_espace() == true) {
+				printf("Musique arrêtée");
+				vTaskDelete(NULL); // Supprime le thread courant
+			}
+            vTaskDelay(pdMS_TO_TICKS(durees[i])); //durée de la note
         }
 
         // Petite pause entre les répétitions du morceau
-        vTaskDelay(pdMS_TO_TICKS(4000));
+        // vTaskDelay(pdMS_TO_TICKS(4000));
     }
 }
 
