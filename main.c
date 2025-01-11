@@ -17,6 +17,7 @@
 
 
 
+
 uint32_t hue_to_color(unsigned int hue);
 
 
@@ -163,99 +164,6 @@ void affichage_dyn(void *arg)
     }
 }
 
-// void affichage_dyn(void *arg)
-// {
-// 	(void)arg;
-// 	int top_msg_x_pos = 0;
-// 	int bot_msg_x_pos = 0;
-// 	int px = 0;
-// 	int py = 0;
-// 	unsigned int hue1 = 0;
-// 	unsigned int hue2 = 768;
-// 	int sample_num = 0;
-
-// 	int speed_x = 7;
-// 	int speed_y = 7;
-// 	int top_msg_speed = 2;
-// 	int bot_msg_speed = 3;
-
-//     // Activer les interruptions pour la souris
-//     MOUSE->CR |= MOUSE_CR_IE;
-
-//     mouse_data_t event;
-//     uint32_t couleur_boule = make_color(255, 215, 0); // or
-
- 
-
-// 	while (1) {
-
-// 		xSemaphoreTake(video_refresh_semaphore, portMAX_DELAY);
-
-//         while (!(VIDEO->SR & 0x2)) {}
-//         VIDEO->SR = 0x2;
-
-//         /// SOURIS ///
-//         if (lire_evenement_souris(&event) == 2) {
-//             {
-//                 dessiner_boule_noel(framebuffer, VIDEO->WIDTH, VIDEO->HEIGHT, event.x, event.y, couleur_boule);
-//             }
-//         }
-
-
-// 		// fill_rectangle(px, py, soccer_ball.width, soccer_ball.height, BLACK);
-
-// 		top_msg_x_pos += top_msg_speed;
-// 		if (top_msg_x_pos < -16 || top_msg_x_pos + 14*16 >= SCREEN_WIDTH) {
-// 			top_msg_speed = -top_msg_speed;
-// 		}
-// 		bot_msg_x_pos += bot_msg_speed;
-// 		if (bot_msg_x_pos < -8 || bot_msg_x_pos + 14*8 >= SCREEN_WIDTH) {
-// 			bot_msg_speed = -bot_msg_speed;
-// 		}
-
-// 		font_16x32_draw_text(top_msg_x_pos, 64, " Joyeux Noel la team! ", hue_to_color(hue1), BLACK);
-// 		hue1 = (hue1 + 1) % 1536;
-
-// 		font_8x16_draw_text(bot_msg_x_pos, SCREEN_HEIGHT - 64, " Joyeux Noel la team! ", hue_to_color(hue2), BLACK);
-// 		hue2 = (hue2 + 1) % 1536;
-
-//         // Le ballon de foot///
-
-// 		// int bump = 0;
-// 		// px += speed_x;
-// 		// if (px < 0) {
-// 		// 	px = -px;
-// 		// 	speed_x = -speed_x;
-// 		// 	bump = 1;
-// 		// } else if (px + soccer_ball.width > SCREEN_WIDTH) {
-// 		// 	px = 2*(SCREEN_WIDTH - soccer_ball.width) - px;
-// 		// 	speed_x = -speed_x;
-// 		// 	bump = 1;
-// 		// }
-// 		// py += speed_y;
-// 		// if (py < 0) {
-// 		// 	py = -py;
-// 		// 	speed_y = -speed_y;
-// 		// 	bump = 1;
-// 		// } else if (py + soccer_ball.height > SCREEN_HEIGHT) {
-// 		// 	py = 2*(SCREEN_HEIGHT - soccer_ball.height) - py;
-// 		// 	speed_y = -speed_y;
-// 		// 	bump = 1;
-// 		// }
-// 		// draw_sprite(px, py, &soccer_ball);
-
-// 		// draw_line(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GREEN); // pour print la ligne transversale
-
-        
-
-// 		// if (bump) {
-// 		// 	Mix_PlayChannel(-1, sound_samples[sample_num], MIX_MAX_VOLUME);
-// 		// 	sample_num = (sample_num + 1) % (NB_SOUND_SAMPLES - 4);
-// 		// }
-//         /////////////////////////
-// 	}
-// }
-
 
 void init_video()
 {
@@ -315,14 +223,40 @@ void init_video()
 
 }
 
+// Audio
+void init_audio() {
+    init_audio_mixer(4);  // Initialisation du mixeur audio
+    printf("Audio initialisé avec succès\n");
+}
+void thread_musique(void *arg) {
+    while (1) {
+        printf("Jouer un échantillon audio\n");
+		// Jouer un échantillon audio sur un canal libre
+        int channel = Mix_PlayChannel(-1, &sound_sample_beep, MIX_MAX_VOLUME);
+		if (channel < 0) {
+			printf("Erreur : impossible de jouer le son\n");
+		} else {
+			printf("Son en cours de lecture sur le canal %d\n", channel);
+		}
+        // Attendre un certain temps avant de rejouer (durée de l'échantillon)
+        vTaskDelay(pdMS_TO_TICKS(3000));  // 3 seconde
+    }
+}
+
 int main()
 {
 	init_uart();
 
-	// init_audio_mixer(4);
+
+	init_audio();
 	init_video();
 
+	// Générer les données audio
+    generate_sine_wave();
+
 	xTaskCreate(affichage_dyn, "hello", 1024, NULL, 1, NULL);
+	xTaskCreate(thread_musique, "Musique", 1024, NULL, 2, NULL);
+
 
 	vTaskStartScheduler();
 

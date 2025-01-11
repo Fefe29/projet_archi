@@ -4,13 +4,10 @@
 #include <stdint.h>
 
 typedef struct {
-  const char    *name;
-  const int16_t *samples;
-  const uint32_t nb_samples;
+    const int16_t *samples;  // Pointeur vers les données audio
+    uint32_t nb_samples;     // Nombre total d'échantillons
+    uint32_t frequency;      // Fréquence d'échantillonnage
 } sound_sample_t;
-
-#define NB_SOUND_SAMPLES 21
-
-extern const sound_sample_t *const sound_samples[NB_SOUND_SAMPLES];
+extern const sound_sample_t sound_sample_beep;  // Déclaration externe
 
 #endif /* SOUND_SAMPLES_H */
