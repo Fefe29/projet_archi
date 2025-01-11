@@ -1,5 +1,5 @@
-#ifndef SOUND_SAMPLES_H
-#define SOUND_SAMPLES_H
+#ifndef SAMPLES_H
+#define SAMPLES_H
 
 #include <stdint.h>
 
@@ -8,6 +8,14 @@ typedef struct {
     uint32_t nb_samples;     // Nombre total d'échantillons
     uint32_t frequency;      // Fréquence d'échantillonnage
 } sound_sample_t;
-extern const sound_sample_t sound_sample_beep;  // Déclaration externe
 
-#endif /* SOUND_SAMPLES_H */
+// Fréquences des notes de la gamme
+extern const float note_frequencies[];
+
+// Structure des échantillons audio pour chaque note
+extern sound_sample_t sound_samples[];
+
+// Fonction pour générer une gamme complète
+void generate_scale();
+
+#endif /* SAMPLES_H */

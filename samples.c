@@ -1,30 +1,52 @@
-#include "samples.h"
-#include <math.h>  // Pour utiliser la fonction sin()
+#include <math.h>
+#include <stdint.h>
+#include "samples.h"  // Assurez-vous que cette déclaration est correcte
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
-#define SAMPLE_RATE 24000  // Fréquence d'échantillonnage en Hz
-#define FREQUENCY 440      // Fréquence de la note en Hz (440 Hz = La4)
-#define DURATION 1         // Durée du son en secondes
-#define AMPLITUDE 30000    // Amplitude maximale de l'onde
+#define SAMPLE_RATE 13000  // Fréquence d'échantillonnage en Hz
+#define DURATION 1         // Durée de chaque note en secondes
+#define AMPLITUDE 30000    // Amplitude maximale de l'onde sinusoïdale
 
-int16_t beep_data[(SAMPLE_RATE * DURATION)] = {
-    [0 ... (SAMPLE_RATE * DURATION) - 1] = 0  // Initialisation pour compiler
+// Fréquences des notes de la gamme majeure de Do
+const float note_frequencies[] = {
+    261.63,  // Do
+    293.66,  // Ré
+    329.63,  // Mi
+    349.23,  // Fa
+    392.00,  // Sol
+    440.00,  // La
+    493.88,  // Si
+    523.25   // Do5
 };
 
-// Générer les données audio
-void generate_sine_wave() {
-    for (int i = 0; i < SAMPLE_RATE * DURATION; i++) {
-        beep_data[i] = (int16_t)(AMPLITUDE * sin(2 * M_PI * FREQUENCY * i / SAMPLE_RATE));
+#define NUM_NOTES (sizeof(note_frequencies) / sizeof(note_frequencies[0]))
+
+// Tableau pour stocker les données audio de chaque note
+int16_t note_data[NUM_NOTES][SAMPLE_RATE * DURATION];
+
+// Tableau pour stocker les structures des échantillons audio
+sound_sample_t sound_samples[NUM_NOTES];
+
+/**
+ * Génère une onde sinusoïdale pour une fréquence donnée.
+ */
+void generate_note_wave(int16_t *buffer, float frequency, int sample_rate, int duration, int amplitude) {
+    for (int i = 0; i < sample_rate * duration; i++) {
+        buffer[i] = (int16_t)(amplitude * sin(2 * M_PI * frequency * i / sample_rate));
     }
 }
 
-
-
-const sound_sample_t sound_sample_beep = {
-    .samples = beep_data,
-    .nb_samples = sizeof(beep_data) / sizeof(beep_data[0]),
-    .frequency = 24000  // Fréquence en Hz
-};
+/**
+ * Génère les données audio pour toutes les notes de la gamme.
+ */
+void generate_scale() {
+    for (int i = 0; i < NUM_NOTES; i++) {
+        generate_note_wave(note_data[i], note_frequencies[i], SAMPLE_RATE, DURATION, AMPLITUDE);
+        sound_samples[i].samples = note_data[i];
+        sound_samples[i].nb_samples = SAMPLE_RATE * DURATION;
+        sound_samples[i].frequency = SAMPLE_RATE;
+    }
+}
