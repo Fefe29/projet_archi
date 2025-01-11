@@ -92,18 +92,9 @@ void affichage_dyn(void *arg)
 {
     (void)arg;
     unsigned int hue1 = 0;
-    unsigned int hue2 = 768;
-
 	int top_msg_x_pos = 0;
-	int bot_msg_x_pos = 0;
-	int px = 0;
-	int py = 0;
-	int sample_num = 0;
-
-	int speed_x = 7;
-	int speed_y = 7;
 	int top_msg_speed = 2;
-	int bot_msg_speed = 3;
+
 
 
     // Activer les interruptions pour la souris et le clavier

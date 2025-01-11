@@ -114,6 +114,7 @@ typedef struct {
 /************************ Mouse controller definition *************************/
 
 
+
 typedef struct {
 	int16_t type;
 	int8_t  amount_y;
@@ -127,6 +128,7 @@ typedef struct {
 	volatile uint32_t     SR;
 	volatile mouse_data_t DATA;
 } mouse_device_t;
+
 
 /* Control register bits */
 #define MOUSE_CR_IE             0x00000001UL
@@ -147,6 +149,7 @@ typedef enum {
 	MOUSE_BUTTON_RIGHT_UP    = 7,
 	MOUSE_WHEEL              = 8
 } mouse_event_type_t;
+
 
 
 
