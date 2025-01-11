@@ -226,36 +226,59 @@ void init_video()
 // Audio
 void init_audio() {
     init_audio_mixer(4);  // Initialisation du mixeur audio
-    printf("Audio initialisé avec succès\n");
+    printf("Initialisation de l'audio effectuée\n");
+	printf("Veuillez patienter pendant le chargement de la musique et de l'affichage");
 }
 void thread_musique(void *arg) {
+	//Aide à la composition ;)
+	//Do: 0
+	//Ré: 1
+	//Mi: 2
+	//Fa: 3
+	//Sol: 4
+	//La: 5
+	//Si: 6
+	//etc pour passer à l'octave du dessus.
+
     // Séquence de notes (indices des notes dans sound_samples)
     const int morceau[] = {
-        0, 3, 3, 3, 4, 3, 4, 5, 5, 5, 5, 6, 5, 4, 3, 3, 3, 3, 2
+        0, 
+		3, 3, 3, 4,
+		3, 4, 5,
+		5, 5, 5, 6,
+		5, 4,
+		3, 3, 3, 3, 2, 1,
+		0, 0, 0,
+		3, 3, 3, 4, 4, 
+		3, 1, 
+		3, 3, 3,  4,
+		3, 3, 4,
+		5, 5, 5, 6,
+
+
+
   
     };
 	// Do – Fa – Fa – Fa – Sol – Fa – Fa – Sol – La – La – La – Si – La – Sol – Fa – Fa – Fa – Fa – Mi – Ré – Do – Do – Do – Fa – Fa – Fa – Sol – Sol – Fa
     const int durees[] = {
-        1000, 1000, 1000, 1000,  // Durée des notes en ms
-        2000, 500, 500, 500,
-        1000, 500, 500,
-        500, 1000,
+        500,
+		500, 500, 500, 500,  // Durée des notes en ms
+        1500, 250, 250, 
+		500, 500, 500, 500,
+        1500, 500,
+		750, 250, 250, 250, 250, 250, 
 		1000, 500,
-        500, 500, 500,
-        500, 500
+		500, 500, 500, 500,
+		1500, 250, 250,
+		500, 500, 500, 500,
     };
 
     const int nombre_notes = sizeof(morceau) / sizeof(morceau[0]);
 
     while (1) {
         for (int i = 0; i < nombre_notes; i++) {
-            printf("Jouer la note %d : fréquence %.2f Hz\n", morceau[i], note_frequencies[morceau[i]]);
+            printf("Note %d : fréquence %.2f Hz\n", morceau[i], note_frequencies[morceau[i]]);
             int channel = Mix_PlayChannel(-1, &sound_samples[morceau[i]], MIX_MAX_VOLUME);
-            if (channel < 0) {
-                printf("Erreur : impossible de jouer la note\n");
-            } else {
-                printf("Note jouée sur le canal %d\n", channel);
-            }
 
             // Attendre la durée de la note
             vTaskDelay(pdMS_TO_TICKS(durees[i]));
