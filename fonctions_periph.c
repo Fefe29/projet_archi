@@ -4,6 +4,8 @@
 #include "audio_server.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
+#include <stdlib.h>
 
 
 
@@ -105,6 +107,23 @@ void dessiner_cadeau_noel(uint32_t *framebuffer, uint32_t largeur, uint32_t haut
     }
 }
 
+// Fonction utilitaire pour tracer un segment entre deux points (algorithme de Bresenham)
+void tracer_segment(uint32_t *framebuffer, uint32_t largeur, uint32_t hauteur, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint32_t couleur) {
+    int16_t dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+    int16_t dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+    int16_t err = dx + dy, e2; // erreur cumulée
+
+    while (1) {
+        if (x0 >= 0 && (uint32_t)x0 < largeur && y0 >= 0 && (uint32_t)y0 < hauteur) {
+            framebuffer[y0 * largeur + x0] = couleur;
+        }
+        if (x0 == x1 && y0 == y1) break;
+        e2 = 2 * err;
+        if (e2 >= dy) { err += dy; x0 += sx; }
+        if (e2 <= dx) { err += dx; y0 += sy; }
+    }
+}
+
 void dessiner_etoile_noel(uint32_t *framebuffer, uint32_t largeur, uint32_t hauteur, int16_t pos_x, int16_t pos_y, uint32_t couleur) {
     printf("Une étoile simple pour le sapin !\n");
 
@@ -130,22 +149,7 @@ void dessiner_etoile_noel(uint32_t *framebuffer, uint32_t largeur, uint32_t haut
     }
 }
 
-// Fonction utilitaire pour tracer un segment entre deux points (algorithme de Bresenham)
-void tracer_segment(uint32_t *framebuffer, uint32_t largeur, uint32_t hauteur, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint32_t couleur) {
-    int16_t dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-    int16_t dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-    int16_t err = dx + dy, e2; // erreur cumulée
 
-    while (1) {
-        if (x0 >= 0 && x0 < largeur && y0 >= 0 && y0 < hauteur) {
-            framebuffer[y0 * largeur + x0] = couleur;
-        }
-        if (x0 == x1 && y0 == y1) break;
-        e2 = 2 * err;
-        if (e2 >= dy) { err += dy; x0 += sx; }
-        if (e2 <= dx) { err += dx; y0 += sy; }
-    }
-}
 
 /*Clavier*/
 
@@ -231,47 +235,3 @@ bool traiter_evenement_espace() {
     return false;
 }
 
-/*Audio*/
-
-// // Déclaration des données audio pour "Jingle Bells"
-// // Tableau d'échantillons audio généré aléatoirement pour test
-// const int16_t jingle_bells_samples[] = {
-//     120, -340, 560, -720, 910, -1120, 1340, -1560, 1780, -2000,
-//     1800, -1600, 1400, -1200, 1000, -800, 600, -400, 200, 0,
-//     -200, 400, -600, 800, -1000, 1200, -1400, 1600, -1800, 2000,
-//     -1780, 1560, -1340, 1120, -910, 720, -560, 340, -120, 0
-// };
-
-// // Nombre total d'échantillons dans le tableau
-// const uint32_t jingle_bells_nb_samples = sizeof(jingle_bells_samples) / sizeof(jingle_bells_samples[0]);
-
-// // Définition du sample "Jingle Bells"
-// sound_sample_t jingle_bells_sample = {
-//     .name = "Jingle Bells",                // Nom de l'échantillon
-//     .samples = jingle_bells_samples,      // Pointeur vers les données audio
-//     .nb_samples = jingle_bells_nb_samples // Nombre total d'échantillons
-// };
-// void jouer_musique_noel(audio_device_t *audio_device, const sound_sample_t *sample, int channel, uint8_t volume) {
-//     // Initialiser l'appareil audio
-//     audio_device->CR = AUDIO_CR_EN;
-
-//     // Configurer les paramètres audio
-//     audio_device->FREQUENCY = 44100; // Fréquence d'échantillonnage standard
-//     audio_device->SAMPLE_FORMAT = AUDIO_SAMPLE_FORMAT_SIGNED; // Format des échantillons
-//     audio_device->NB_CHANNELS = 1; // Mono (selon la structure sound_sample_t)
-
-//     // Configurer les tampons pour les échantillons
-//     audio_device->BUF_SAMPLE_SIZE = sample->nb_samples; // Nombre d'échantillons
-//     audio_device->BUF_BYTE_SIZE = sample->nb_samples * sizeof(int16_t); // Taille en octets
-//     audio_device->BUF_A_ADDR = (void *)sample->samples; // Adresse du tampon A
-//     audio_device->BUF_B_ADDR = NULL; // Pas de tampon secondaire nécessaire ici
-
-//     // Jouer la musique
-//     if (channel >= 0 && channel < MIX_CHANNELS) {
-//         printf("Lecture de '%s' sur le canal %d avec un volume de %d.\n", sample->name, channel, volume);
-//         Mix_SetPanning(channel, volume, volume); // Configurer un volume équilibré entre gauche et droite
-//         Mix_PlayChannel(channel, sample, volume);
-//     } else {
-//         printf("Erreur : canal %d invalide ou non disponible.\n", channel);
-//     }
-// }

@@ -241,6 +241,8 @@ Attention aux oreilles. Appuyer sur la barre d'espace pour
 arrêter la musique (interruption)
 */
 void thread_musique(void *arg) {
+	(void)arg;
+
 	//Pour l'interruption clavier
 
     KEYBOARD->CR |= KEYBOARD_CR_IE;
@@ -293,7 +295,7 @@ void thread_musique(void *arg) {
 		// Gestion des événements clavier
         for (int i = 0; i < nombre_notes; i++) {
             printf("Note %d : fréquence %.2f Hz\n", morceau[i], note_frequencies[morceau[i]]);
-            int channel = Mix_PlayChannel(-1, &sound_samples[morceau[i]], MIX_MAX_VOLUME);
+            Mix_PlayChannel(-1, &sound_samples[morceau[i]], MIX_MAX_VOLUME);
 			if (traiter_evenement_espace() == true) {
 				printf("Musique arrêtée");
 				vTaskDelete(NULL); // Supprime le thread courant
