@@ -34,7 +34,7 @@ sound_sample_t sound_samples[NUM_NOTES];
  * Génère une onde sinusoïdale pour une fréquence donnée.
  */
 void generate_note_wave(int16_t *buffer, float frequency, int sample_rate, int duration, int amplitude) {
-    for (int i = 0; i < sample_rate * duration; i++) {
+    for (unsigned int i = 0; i < sample_rate * duration; i++) {
         buffer[i] = (int16_t)(amplitude * sin(2 * M_PI * frequency * i / sample_rate));
     }
 }
