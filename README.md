@@ -19,7 +19,7 @@ Ce projet met en œuvre plusieurs fonctionnalités démontrant l'utilisation des
    - Le projet utilise le **port FreeRTOS** et son mixeur audio pour jouer un morceau de musique ("Petit Papa Noël"). Chaque note est jouée dans un thread dédié avec une gestion précise des durées, garantissant une synchronisation fluide.
 
 ### 4. **Architecture modulaire**
-   - Le projet suit une architecture claire et modulaire :
+   - Le projet suit l'architecture suivante :
      - **`main.c`** : Point d'entrée, gestion principale.
      - **`samples.c`** : Génération et stockage des échantillons audio.
      - **`fonctions_periph.c`** : Gestion des événements périphériques (clavier, souris).
@@ -31,6 +31,10 @@ Ce projet met en œuvre plusieurs fonctionnalités démontrant l'utilisation des
      2. Affichage du sapin avec animations.
      3. Gestion des événements souris et clavier.
      4. Intégration de la musique et des interruptions.
+
+### 6. **Deux threads**
+    - Un pour l'affichage
+    - Un pour la musique
 
 ---
 
@@ -54,7 +58,7 @@ Ce projet met en œuvre plusieurs fonctionnalités démontrant l'utilisation des
 
 - **`.vscode/settings.json`** : Paramètres de l'environnement de développement.
 - **`audio_server.c`** / **`audio_server.h`** : Gestion du mixeur audio.
-- **`fonctions_periph.c`** : Gestion des périphériques (souris, clavier).
+- **`fonctions_periph.c`** : Gestion des périphériques (souris, clavier) + ajout des fonctions utilitaires de dessins des boules, étoiles, cadeaux etc.
 - **`font.c`** / **`font.h`** : Affichage de texte sur l'écran.
 - **`samples.c`** / **`samples.h`** : Données audio et génération des notes.
 - **`main.c`** : Point d'entrée du programme.
@@ -81,15 +85,22 @@ Pour exécuter le projet sur l'émulateur Mini-RISC :
 make exec
 ```
 
-### Débogage
 
-Pour déboguer avec GDB :
+## Utilisation
 
-```sh
-make gdb2
-```
-
+Une fois le programme lancer avec make exec, une fenètre s'affiche. Elle n'est pas active tant que la musique n'a pas démarrée (chargement du programme). Une fois que la musique est lancée, vous pouvez:
+- **arrêter la musique** en pressant la barre d'espace de votre clavier (ne pas hésiter à appuyer longtemps si la musique ne s'arrête pas)
+- **dessiner une boule de Noel** en faisant un clic gauche avec votre souris à l'endroit où vous voulez la placer
+- **dessiner un cadeau** en faisant un clic droit sur votre souris avec votre souris à l'endroit où vous voulez le placer
+- **dessiner une étoile** en faisant un clic molette avec votre souris avec votre souris à l'endroit où vous voulez la placer
+- **changer la couleur** de vos prochains dessins en tapant sur une touche alphabétique de votre clavier (chaque touche correspondant à une couleur). La couleur choisie s'affiche dans le rectangle en haut à droite de la page d'affichage
 ---
+
+## Ce qui peut être amélioré
+
+- **Mettre les interruptions sur des threads propres**
+- **Utiliser sprite pour générer l'image du sapin de Noel**
+- **Probleme deuxième tour musique**
 
 ## Références
 
@@ -102,3 +113,4 @@ make gdb2
 ---
 
 Ce projet respecte l'ensemble des consignes et démontre une maîtrise des périphériques, des interruptions et de l'audio sur Mini-RISC.
+

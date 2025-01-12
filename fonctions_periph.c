@@ -1,6 +1,6 @@
 #include "harvey_platform.h"
 #include "header.h"
-#include "samples.h" // Assurez-vous d'avoir la déclaration de sound_sample_t
+#include "samples.h"
 #include "audio_server.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -11,12 +11,6 @@
 
 /*Souris*/
 int lire_evenement_souris(mouse_data_t *event) {
-    // // Vérifiez si la FIFO contient un événement
-    // if (!(SOURIS->SR & MOUSE_SR_FIFO_NOT_EMPTY)) {
-    //     printf("FIFO vide\n");
-    //     return -1; // La FIFO est vide, aucun événement à lire
-    // }
-
 
     // Pour diagnostiquer et traiter le clic en fonction de son type
     switch (event->type) {
@@ -107,7 +101,7 @@ void dessiner_cadeau_noel(uint32_t *framebuffer, uint32_t largeur, uint32_t haut
     }
 }
 
-// Fonction utilitaire pour tracer un segment entre deux points (algorithme de Bresenham)
+// Fonction utilitaire pour tracer un segment entre deux points
 void tracer_segment(uint32_t *framebuffer, uint32_t largeur, uint32_t hauteur, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint32_t couleur) {
     int16_t dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
     int16_t dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;

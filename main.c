@@ -109,8 +109,6 @@ void affichage_dyn(void *arg)
     uint32_t couleur = make_color(255, 215, 0); // Couleur initiale de la boule
 
     while (1) {
-        // xSemaphoreTake(video_refresh_semaphore, portMAX_DELAY);
-
 		// Attendre que la vidéo soit prête
 		while (!(VIDEO->SR & 0x2)) {}
 		VIDEO->SR = 0x2;
@@ -138,10 +136,6 @@ void affichage_dyn(void *arg)
 		if (top_msg_x_pos < -16 || top_msg_x_pos + 14*16 >= SCREEN_WIDTH) {
 			top_msg_speed = -top_msg_speed;
 		}
-		// bot_msg_x_pos += bot_msg_speed;
-		// if (bot_msg_x_pos < -8 || bot_msg_x_pos + 14*8 >= SCREEN_WIDTH) {
-		// 	bot_msg_speed = -bot_msg_speed;
-		// }
 
 		font_16x32_draw_text(top_msg_x_pos, 64, " Joyeux Noel la team! ", hue_to_color(hue1), BLACK);
 		hue1 = (hue1 + 1) % 1536;
@@ -160,10 +154,6 @@ void affichage_dyn(void *arg)
 		        }
 		    }
 		}
-
-		// font_8x16_draw_text(bot_msg_x_pos, SCREEN_HEIGHT - 64, " Joyeux Noel la team! ", hue_to_color(hue2), BLACK);
-		// hue2 = (hue2 + 1) % 1536;
-
     }
 }
 
@@ -283,6 +273,8 @@ void thread_musique(void *arg) {
 		500, 500, 500, 500,
         1500, 500,
 		750, 250, 250, 250, 250, 250, 
+		1500, 250, 250,
+		1000, 250, 250, 250, 250,
 		1000, 500,
 		500, 500, 500, 500,
 		1500, 250, 250,
