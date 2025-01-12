@@ -109,6 +109,9 @@ void affichage_dyn(void *arg)
     uint32_t couleur = make_color(255, 215, 0); // Couleur initiale de la boule
 
     while (1) {
+		// Attendre le signal de rafraîchissement de l'écran
+		xSemaphoreTake(video_refresh_semaphore, portMAX_DELAY);
+
 		// Attendre que la vidéo soit prête
 		while (!(VIDEO->SR & 0x2)) {}
 		VIDEO->SR = 0x2;

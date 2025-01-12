@@ -15,24 +15,53 @@ Ce projet met en œuvre plusieurs fonctionnalités démontrant l'utilisation des
 ### 2. **Gestion des interruptions**
    - Les interruptions sont utilisées pour la gestion des événements clavier et souris. Par exemple, la musique peut être interrompue à tout moment en appuyant sur la barre d'espace, ce qui démontre une bonne intégration des interruptions matérielles.
 
-### 3. **Utilisation du mixeur audio (FreeRTOS)**
+### 3. **Utilisation des sémaphores**
+   Les sémaphores sont utilisées pour synchroniser les opérations d'affichage avec les interruptions vidéo, garantissant ainsi un rafraîchissement fluide de l'écran.
+
+   - **Création** :
+     Une sémaphore binaire est créée dans la fonction `init_video` pour gérer les interruptions liées au contrôleur vidéo :
+     ```c
+     video_refresh_semaphore = xSemaphoreCreateBinary();
+     ```
+
+   - **Signalement** :
+     Lorsqu'une interruption vidéo survient, la fonction `video_interrupt_handler` libère la sémaphore pour indiquer qu'une nouvelle image peut être affichée :
+     ```c
+     void video_interrupt_handler() {
+         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+         VIDEO->SR &= ~VIDEO_SR_SRF_P;
+         xSemaphoreGiveFromISR(video_refresh_semaphore, &xHigherPriorityTaskWoken);
+         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+     }
+     ```
+
+   - **Attente** :
+     Bien que la synchronisation via sémaphore soit prévue, elle est actuellement commentée dans la fonction `affichage_dyn`. Pour une synchronisation complète, cette ligne peut être activée :
+     ```c
+     // xSemaphoreTake(video_refresh_semaphore, portMAX_DELAY);
+     ```
+
+   Cette mécanique garantit que chaque opération d'affichage attend la fin d'une interruption vidéo avant de se lancer, évitant ainsi les artefacts visuels.
+
+
+### 4. **Utilisation du mixeur audio (FreeRTOS)**
    - Le projet utilise le **port FreeRTOS** et son mixeur audio pour jouer un morceau de musique ("Petit Papa Noël"). Chaque note est jouée dans un thread dédié avec une gestion précise des durées, garantissant une synchronisation fluide.
 
-### 4. **Architecture modulaire**
+### 5. **Architecture modulaire**
    - Le projet suit l'architecture suivante :
      - **`main.c`** : Point d'entrée, gestion principale.
      - **`samples.c`** : Génération et stockage des échantillons audio.
      - **`fonctions_periph.c`** : Gestion des événements périphériques (clavier, souris).
      - **`audio_server.c`** : Gestion des sons avec le mixeur audio.
 
-### 5. **Agilité dans la démarche**
+### 6. **Agilité dans la démarche**
    - Le développement a été réalisé de manière itérative, en testant et en validant chaque fonctionnalité avant de passer à la suivante :
      1. Initialisation des périphériques.
      2. Affichage du sapin avec animations.
      3. Gestion des événements souris et clavier.
      4. Intégration de la musique et des interruptions.
 
-### 6. **Deux threads**
+### 7. **Deux threads**
     - Un pour l'affichage
     - Un pour la musique
 
@@ -100,7 +129,6 @@ Une fois le programme lancer avec make exec, une fenètre s'affiche. Elle n'est 
 
 - **Mettre les interruptions sur des threads propres**
 - **Utiliser sprite pour générer l'image du sapin de Noel**
-- **Probleme deuxième tour musique**
 
 ## Références
 
@@ -112,5 +140,10 @@ Une fois le programme lancer avec make exec, une fenètre s'affiche. Elle n'est 
 
 ---
 
-Ce projet respecte l'ensemble des consignes et démontre une maîtrise des périphériques, des interruptions et de l'audio sur Mini-RISC.
+
+## Remarques complémentaires
+
+   - Pour toute demande complémentaire, n'hésitez pas à m'envoyer un mail à felicien.moquet@ensta.fr.
+   - N'hésitez pas à stopper le son avec la barre d'espace. Cela casse un peu les oreilles à la longue ;)
+
 
